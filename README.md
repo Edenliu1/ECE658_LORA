@@ -1,2 +1,2 @@
 # ECE658_LORA
-Final project fro ECE658 course on LORA
+Final project for ECE 658 on LoRA.
