@@ -51,8 +51,8 @@ def load_cls_dataset(name, tok):
 def load_wikitext2(tok, block_size=256):
     from datasets import load_dataset
     try:
-        raw = load_dataset("mindchain/wikitext2")
-        print("Loaded dataset: mindchain/wikitext2")
+        raw = load_dataset("wikitext", "wikitext-2-v1") # load Hugging Face's official wikitext2_v1 dataset
+        print("Loaded dataset: wikitext/wikitext-2-v1")
     except Exception:
         print("mindchain/wikitext2 not found, fallback to wikitext/wikitext-2-raw-v1")
         raw = load_dataset("wikitext", "wikitext-2-raw-v1")
