@@ -1,0 +1,7 @@
+/start_example.sh
+/eval_common.sh
+/.env
+/results_dev/
+/.idea
+/data_file/llm_adapt.zip
+/data_file/hira_datafile.zip
