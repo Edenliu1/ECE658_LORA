@@ -1,0 +1,5 @@
+dataset,model,adapter,r,alpha,dropout,epochs,lr,trainable_params,total_params,accuracy,train_time_min,peak_vram_gb,notes
+sst2,distilbert-base-uncased,lora,8,16,0.1,3,0.0002,739586,67694596,0.8933,2.67,0.80,baseline
+sst2,distilbert-base-uncased,lora,8,16,0.1,5,0.0001,739586,67694596,0.8911,4.88,0.80,baseline
+imdb,distilbert-base-uncased,lora,8,16,0.1,3,0.0002,739586,67694596,0.9182,5.80,2.26,baseline
+wikitext2,distilgpt2,lora,8,16,0.1,1,0.0002,589824,82502400,39.7812,0.89,7.00,baseline
