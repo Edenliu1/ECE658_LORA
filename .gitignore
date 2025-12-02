@@ -1,5 +1,6 @@
 # Some local files
 SparseLoRA/model.py
+outputs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
