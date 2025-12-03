@@ -175,21 +175,30 @@ def main():
         if args.mode == "sparselora":
             if not args.spft_config_file:
                 raise ValueError("--spft_config_file is required for --mode sparselora")
+            
             print(f"Applying SparseLoRA (SPFT) patches from: {args.spft_config_file}")
+            
             spft_config = SPFTConfig.from_file(args.spft_config_file)
+
+            # Override the dynamic settings from Command Line
+            spft_config.r = args.r
+            spft_config.alpha = args.alpha
+            spft_config.dropout = args.dropout
+            
+            # Update the mode string dynamically (e.g., "svd_8" -> "svd_32")
+            if hasattr(spft_config, 'mode') and "svd" in spft_config.mode:
+                spft_config.mode = f"svd_{args.r}"
+
             model = get_spft_model(model, spft_config)
-            # unfreeze adapter layers
+
+            # Unfreeze the new parameters
             print("Unfreezing SparseLoRA and Classifier parameters...")
             for name, param in model.named_parameters():
-                # 1. Unfreeze SparseLoRA adapter weights
                 if any(k in name for k in ["lora", "spft", "svd", "adapter"]):
                     param.requires_grad = True
-                
-                # 2. Unfreeze the Classifier Head (CRITICAL for IMDB)
-                # Since we are fine-tuning on a new task, the final layer must be trainable.
                 if "classifier" in name or "pre_classifier" in name or "score" in name:
                     param.requires_grad = True
-                    
+
         if hasattr(model, "print_trainable_parameters"):
             model.print_trainable_parameters()
         else:
@@ -268,14 +277,38 @@ def main():
             )
             model = get_peft_model(model, lora_cfg)
 
+        # 2. SparseLoRA (SPFT)
         if args.mode == "sparselora":
             if not args.spft_config_file:
                 raise ValueError("--spft_config_file is required for --mode sparselora")
             print(f"Applying SparseLoRA (SPFT) patches from: {args.spft_config_file}")
             spft_config = SPFTConfig.from_file(args.spft_config_file)
+
+            if hasattr(spft_config, 'r'):
+                spft_config.r = args.r
+            if hasattr(spft_config, 'alpha'):
+                spft_config.alpha = args.alpha
+            if hasattr(spft_config, 'dropout'):
+                spft_config.dropout = args.dropout
+            
+            # Update mode string (e.g., "svd_8" -> "svd_32")
+            if hasattr(spft_config, 'mode') and "svd" in spft_config.mode:
+                spft_config.mode = f"svd_{args.r}"
+
             model = get_spft_model(model, spft_config)
 
-        model.print_trainable_parameters()
+            print("Unfreezing SparseLoRA parameters...")
+            for name, param in model.named_parameters():
+                # Unfreeze only the new adapter weights
+                if any(k in name for k in ["lora", "spft", "svd", "adapter"]):
+                    param.requires_grad = True
+
+        if hasattr(model, "print_trainable_parameters"):
+            model.print_trainable_parameters()
+        else:
+            # Fallback for models that don't have the method
+            trainable, total = count_trainable_params(model)
+            print(f"trainable params: {trainable:,} || all params: {total:,} || trainable%: {100 * trainable / total:.4f}")
 
         try:
             TrainingArguments(evaluation_strategy="epoch")

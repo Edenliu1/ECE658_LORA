@@ -18,8 +18,10 @@ import pandas as pd
 DATASETS = ["sst2", "imdb", "wikitext2"]
 
 # Search Space
-RANKS = [2, 4, 8, 16, 32, 64]
-LR_MULTIPLIERS = [0.1, 0.5, 1.0, 2.0, 5.0] # Grid search for LR
+# RANKS = [2, 4, 8, 16, 32, 64]
+# LR_MULTIPLIERS = [0.1, 0.5, 1.0, 2.0, 5.0] # Grid search for LR
+RANKS = [2, 4]
+LR_MULTIPLIERS = [0.1, 0.5] # Grid search for LR
 BASE_LR = 0.0002
 
 # Fixed settings
