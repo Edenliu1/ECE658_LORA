@@ -17,9 +17,11 @@ import torch.nn as nn
 # --- SparseLoRA Import Check ---
 try:
     from spft.api import SPFTConfig, get_spft_model
+    SPFT_AVAILABLE = True
 except ImportError:
-    print("WARNING: `spft` library not found. --mode sparselora will fail.")
-    print("Please install with: pip install spft")
+    SPFT_AVAILABLE = False
+    SPFTConfig = None
+    get_spft_model = None
 
 def parse_args():
     p = argparse.ArgumentParser()
@@ -171,12 +173,28 @@ def main():
             )
             model = get_peft_model(model, lora_cfg)
 
-        # 2. SparseLoRA (SPFT)
+        # 2. SparseLoRA (SPFT) - requires LoRA to be set up first!
         if args.mode == "sparselora":
+            if not SPFT_AVAILABLE:
+                raise ImportError(
+                    "`spft` library not found. Cannot use --mode sparselora.\n"
+                    "Please install with: pip install -e sparselora_repo/"
+                )
             if not args.spft_config_file:
                 raise ValueError("--spft_config_file is required for --mode sparselora")
             
-            print(f"Applying SparseLoRA (SPFT) patches from: {args.spft_config_file}")
+            # CRITICAL: SparseLoRA requires LoRA to be created FIRST, then SPFT is applied on top
+            print(f"Setting up LoRA first (r={args.r}, alpha={args.alpha}, dropout={args.dropout})...")
+            lora_cfg = LoraConfig(
+                r=args.r,
+                lora_alpha=args.alpha,
+                lora_dropout=args.dropout,
+                target_modules=target_modules_for_distilbert(),
+                bias="none",
+                task_type="SEQ_CLS",
+            )
+            model = get_peft_model(model, lora_cfg)
+            print("LoRA applied. Now applying SparseLoRA (SPFT) patches...")
             
             spft_config = SPFTConfig.from_file(args.spft_config_file)
 
@@ -277,11 +295,29 @@ def main():
             )
             model = get_peft_model(model, lora_cfg)
 
-        # 2. SparseLoRA (SPFT)
+        # 2. SparseLoRA (SPFT) - requires LoRA to be set up first!
         if args.mode == "sparselora":
+            if not SPFT_AVAILABLE:
+                raise ImportError(
+                    "`spft` library not found. Cannot use --mode sparselora.\n"
+                    "Please install with: pip install -e sparselora_repo/"
+                )
             if not args.spft_config_file:
                 raise ValueError("--spft_config_file is required for --mode sparselora")
-            print(f"Applying SparseLoRA (SPFT) patches from: {args.spft_config_file}")
+            
+            # CRITICAL: SparseLoRA requires LoRA to be created FIRST, then SPFT is applied on top
+            print(f"Setting up LoRA first (r={args.r}, alpha={args.alpha}, dropout={args.dropout})...")
+            lora_cfg = LoraConfig(
+                r=args.r,
+                lora_alpha=args.alpha,
+                lora_dropout=args.dropout,
+                target_modules=target_modules_for_gpt2(),
+                bias="none",
+                task_type="CAUSAL_LM",
+            )
+            model = get_peft_model(model, lora_cfg)
+            print("LoRA applied. Now applying SparseLoRA (SPFT) patches...")
+            
             spft_config = SPFTConfig.from_file(args.spft_config_file)
 
             if hasattr(spft_config, 'r'):

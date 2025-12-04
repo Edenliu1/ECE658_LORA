@@ -10,18 +10,12 @@ import json
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# =============================================================================
-# Configuration (Matches your friend's settings)
-# =============================================================================
-
 # Datasets to run
 DATASETS = ["sst2", "imdb", "wikitext2"]
 
 # Search Space
-# RANKS = [2, 4, 8, 16, 32, 64]
-# LR_MULTIPLIERS = [0.1, 0.5, 1.0, 2.0, 5.0] # Grid search for LR
-RANKS = [2, 4]
-LR_MULTIPLIERS = [0.1, 0.5] # Grid search for LR
+RANKS = [2, 4, 8, 16, 32, 64]
+LR_MULTIPLIERS = [0.1, 0.5, 1.0, 2.0, 5.0] # Grid search for LR
 BASE_LR = 0.0002
 
 # Fixed settings
@@ -29,10 +23,6 @@ EPOCHS = 3
 BSZ = 32
 SEED = 685
 OUTPUT_DIR = "outputs/sparselora_comparison"
-
-# =============================================================================
-# Helper Functions
-# =============================================================================
 
 def run_sparselora_experiment(dataset, rank, lr):
     """
@@ -81,10 +71,6 @@ def run_sparselora_experiment(dataset, rank, lr):
         print(f" FAILED! Error:\n{e.stderr}")
         return {"metric": 0.0, "params": 0}
 
-# =============================================================================
-# Main Experiment Loop
-# =============================================================================
-
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     results_data = []
@@ -130,10 +116,7 @@ def main():
             
             print(f"  >> BEST for r={rank}: {best_metric:.4f} (LR x{best_lr})")
 
-    # =============================================================================
-    # Visualization
-    # =============================================================================
-    
+ 
     # Save raw data
     df = pd.DataFrame(results_data)
     df.to_csv(os.path.join(OUTPUT_DIR, "sparselora_results_summary.csv"), index=False)
