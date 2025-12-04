@@ -1,0 +1,37 @@
+#* General Settings
+# Step Offset: Controls the step at which sparsity is applied during fine-tuning
+start_step: 0.05
+# End step for sparsity (1.0 = end of training)
+end_step: 1.0
+# Specifies the sparsity predictor or selection strategy
+# "svd_8" uses an SVD-based estimator with rank 8
+mode: "svd_8"
+# Specifies whether output tokens are processed densely (True) or sparsely (False)
+skip_output_tokens: True
+# Skip sink tokens (number of tokens to skip from start, 0 = disabled)
+skip_sink_tokens: 0
+# Skip random tokens (True = randomly select tokens to skip)
+skip_random_tokens: False
+# Sparse output tokens ratio (0.0 = all dense, 1.0 = all sparse)
+sparse_output_tokens: 0.0
+# Whether to apply sparsity to LoRA branch (False = apply to base model)
+sparse_lora_branch: False
+
+#* Layer-wise Sparsity
+# DistilBERT has 6 layers (0-5)
+# Format: layers.{layer_num}.mlp or layers.{layer_num}.self_attn
+# Values: 0.0 (dense) to 1.0 (fully sparse)
+# For DistilBERT, we use "mlp" for feed-forward and "self_attn" for attention
+sparsity:
+  layers.0.mlp: 0.5
+  layers.0.self_attn: 0.5
+  layers.1.mlp: 0.5
+  layers.1.self_attn: 0.5
+  layers.2.mlp: 0.5
+  layers.2.self_attn: 0.5
+  layers.3.mlp: 0.5
+  layers.3.self_attn: 0.5
+  layers.4.mlp: 0.5
+  layers.4.self_attn: 0.5
+  layers.5.mlp: 0.5
+  layers.5.self_attn: 0.5
